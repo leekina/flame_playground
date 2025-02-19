@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 class DragArea extends PositionComponent
     with CollisionCallbacks, DragCallbacks {
   final _collisionStartColor = Colors.amber;
-  final _defaultColor = Colors.cyan;
+
   int sum = 0;
   late ShapeHitbox hitbox;
 
@@ -35,15 +35,19 @@ class DragArea extends PositionComponent
     super.onDragStart(event);
     _dragStart = event.localPosition;
     add(
-      DragPainter2(this, _dragStart),
+      CustomPainterComponent(
+        painter: _DragPainter(this),
+        anchor: Anchor.center,
+        position: _dragStart,
+      ),
     );
   }
 
   @override
   void onDragUpdate(DragUpdateEvent event) {
     // print('@@ Here drag update');
-    _dragDelta = event.localEndPosition - _dragStart;
     // print('@@ Here ${_dragDelta.x} / ${_dragDelta.y}');
+    _dragDelta = event.localEndPosition - _dragStart;
   }
 
   Vector2 calcPosition() {
