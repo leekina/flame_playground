@@ -7,6 +7,12 @@ import 'package:flutter/widgets.dart';
 
 class Apple extends PositionComponent with CollisionCallbacks {
   int value;
+  late SpriteComponent _spriteComponent;
+  late Sprite _normalSprite;
+  late Sprite _selectedSprite;
+  bool _isSelected = false;
+  
+  bool get isSelected => _isSelected;
 
   Apple({
     required this.value,
@@ -18,15 +24,18 @@ class Apple extends PositionComponent with CollisionCallbacks {
 
   @override
   FutureOr<void> onLoad() async {
-    final apple = await Flame.images.load('apple.png');
-    final apple2 = await Flame.images.load('apple_select.png');
+    _normalSprite = Sprite(await Flame.images.load('apple.png'));
+    _selectedSprite = Sprite(await Flame.images.load('apple_select.png'));
+    
+    _spriteComponent = SpriteComponent(
+      anchor: Anchor.center,
+      sprite: _normalSprite,
+      size: Vector2(24, 24),
+      position: Vector2(0, 0),
+    );
+
     addAll([
-      SpriteComponent(
-        anchor: Anchor.center,
-        sprite: Sprite(apple),
-        size: Vector2(24, 24),
-        position: Vector2(0, 0),
-      ),
+      _spriteComponent,
       TextComponent(
         text: value.toString(),
         textRenderer: TextPaint(
@@ -46,6 +55,13 @@ class Apple extends PositionComponent with CollisionCallbacks {
     ]);
 
     return super.onLoad();
+  }
+
+  void setSelected(bool selected) {
+    if (_isSelected != selected) {
+      _isSelected = selected;
+      _spriteComponent.sprite = selected ? _selectedSprite : _normalSprite;
+    }
   }
 
   // @override
