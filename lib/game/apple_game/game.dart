@@ -3,11 +3,11 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame_playground/game/apple_game/component/apple.dart';
 import 'package:flame_playground/game/apple_game/component/background.dart';
 import 'package:flame_playground/game/apple_game/component/drag_box_v2.dart';
+import 'package:flame_playground/game/apple_game/component/score_display.dart';
 
 class AppleGame extends FlameGame
     with HasCollisionDetection, DragCallbacks, HasGameRef<AppleGame> {
@@ -28,6 +28,7 @@ class AppleGame extends FlameGame
       [
         Background(sprite: Sprite(backgroundImage)),
         DragArea(),
+        ScoreDisplay(position: Vector2(20, 20)),
       ],
     );
     addApple();
