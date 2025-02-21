@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
 import 'package:flame_playground/game/apple_game/component/apple.dart';
 import 'package:flame_playground/game/apple_game/component/score_display.dart';
@@ -92,16 +93,31 @@ class DragArea extends PositionComponent
         .where((apple) => apple.isSelected)
         .toList() ?? [];
     
-    print("선택된 사과 갯수: ${selectedApples.length}, sum: $sum");
-
     if (sum == 10) {
+      final Random rand = Random();
+      
       for (final apple in selectedApples) {
-        apple.removeFromParent();
+        final double randomX = (rand.nextDouble() * 50) * (rand.nextBool() ? 1 : -1);
+        final double randomYJump = -(30 + rand.nextDouble() * 40);
+        
+        final jumpEffect = MoveByEffect(
+          Vector2(randomX * 0.5, randomYJump),
+          EffectController(duration: 0.2, curve: Curves.easeOut),
+        );
+        
+        final fallEffect = MoveByEffect(
+          Vector2(randomX, 600),
+          EffectController(duration: 0.5, curve: Curves.easeIn),
+          onComplete: () => apple.removeFromParent(),
+        );
+        
+        final sequenceEffect = SequenceEffect([jumpEffect, fallEffect]);
+        apple.add(sequenceEffect);
       }
+      
       final scoreDisplays = parent?.children.query<ScoreDisplay>();
       if (scoreDisplays != null && scoreDisplays.isNotEmpty) {
         scoreDisplays.first.addScore(selectedApples.length);
-        print("점수 업데이트: ${scoreDisplays.first.score}");
       }
     }
     
