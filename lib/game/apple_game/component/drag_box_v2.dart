@@ -13,8 +13,9 @@ class DragArea extends PositionComponent
     with CollisionCallbacks, DragCallbacks {
   int sum = 0;
   DragPainter2? currentDragBox;
+  final Function(List<Apple>) onApplesRemoved; //
 
-  DragArea()
+  DragArea({required this.onApplesRemoved})
       : super(
           position: Vector2(0, 0),
           size: Vector2(300, 300),
@@ -87,43 +88,46 @@ class DragArea extends PositionComponent
   @override
   void onDragEnd(DragEndEvent event) {
     super.onDragEnd(event);
-    
+
     final List<Apple> selectedApples = parent?.children
-        .query<Apple>()
-        .where((apple) => apple.isSelected)
-        .toList() ?? [];
-    
+            .query<Apple>()
+            .where((apple) => apple.isSelected)
+            .toList() ??
+        [];
+
     if (sum == 10) {
       final Random rand = Random();
-      
+
       for (final apple in selectedApples) {
-        final double randomX = (rand.nextDouble() * 50) * (rand.nextBool() ? 1 : -1);
+        final double randomX =
+            (rand.nextDouble() * 50) * (rand.nextBool() ? 1 : -1);
         final double randomYJump = -(30 + rand.nextDouble() * 40);
-        
+
         final jumpEffect = MoveByEffect(
           Vector2(randomX * 0.5, randomYJump),
           EffectController(duration: 0.2, curve: Curves.easeOut),
         );
-        
+
         final fallEffect = MoveByEffect(
           Vector2(randomX, 600),
           EffectController(duration: 0.5, curve: Curves.easeIn),
           onComplete: () => apple.removeFromParent(),
         );
-        
+
         final sequenceEffect = SequenceEffect([jumpEffect, fallEffect]);
         apple.add(sequenceEffect);
       }
-      
+      onApplesRemoved(selectedApples);
+
       final scoreDisplays = parent?.children.query<ScoreDisplay>();
       if (scoreDisplays != null && scoreDisplays.isNotEmpty) {
         scoreDisplays.first.addScore(selectedApples.length);
       }
     }
-    
+
     currentDragBox?.removeFromParent();
     currentDragBox = null;
-    
+
     Future.delayed(const Duration(milliseconds: 500), () {
       sum = 0;
       parent?.children.query<Apple>().forEach((apple) {
